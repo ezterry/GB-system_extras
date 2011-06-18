@@ -7,7 +7,6 @@ LOCAL_SRC_FILES := su.c activity.cpp
 LOCAL_MODULE_TAGS := optional
 
 LOCAL_C_INCLUDES += external/sqlite/dist
-
 LOCAL_SHARED_LIBRARIES := \
     liblog \
     libsqlite \
