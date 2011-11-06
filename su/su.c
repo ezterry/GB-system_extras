@@ -318,7 +318,8 @@ int main(int argc, char *argv[])
             }
         } else if (!strcmp(argv[i], "-s") || !strcmp(argv[i], "--shell")) {
             if (++i < argc) {
-                strcpy(shell, argv[i]);
+                strncpy(shell, argv[i], sizeof(shell));
+                shell[sizeof(shell) - 1] = 0;
             } else {
                 usage();
             }
@@ -376,6 +377,10 @@ int main(int argc, char *argv[])
         chown(REQUESTOR_CACHE_PATH, req_uid, req_uid);
     }
 
+    setgroups(0, NULL);
+    setegid(st.st_gid);
+    seteuid(st.st_uid);
+
     LOGE("sudb - Opening database");
     db = database_init();
     if (!db) {
@@ -389,6 +394,7 @@ int main(int argc, char *argv[])
         // Close the database, we're done with it. If it stays open,
         // it will cause problems
         sqlite3_close(db);
+        db = NULL;
         LOGE("sudb - Database closed");
     }
 
@@ -398,7 +404,7 @@ int main(int argc, char *argv[])
         case DB_INTERACTIVE: break;
         default: deny();
     }
-
+    
     socket_serv_fd = socket_create_temp(req_uid);
     if (socket_serv_fd < 0) {
         deny();
